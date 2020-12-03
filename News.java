@@ -34,5 +34,4 @@ public class News implements Serializable {
     private void setText(String text){
         this.text = text;
     }
-
 }

@@ -13,9 +13,13 @@ import java.util.Set;
 
 public class Consumer {
     public static void main(String []args) throws JMSException, URISyntaxException, IOException {
+        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
+        System.out.print("Type your name: ");
+        String consumerName = keyboard.readLine();
         System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
         String url = ActiveMQConnection.DEFAULT_BROKER_URL;
         ActiveMQConnection connection = ActiveMQConnection.makeConnection(url);
+        connection.setClientID(consumerName);
         connection.start();
         Set<ActiveMQTopic> allTopics = connection.getDestinationSource().getTopics();
         System.out.println("All topics are :");
@@ -23,13 +27,10 @@ public class Consumer {
             System.out.println(topic.getTopicName());
         }
         System.out.println("Type topic which you want to read");
-        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
         String topicName = keyboard.readLine();
         Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);
-        Destination destination = session.createTopic(topicName);
-
-        MessageConsumer consumer = session.createConsumer(destination);
+        Topic topicDestination = session.createTopic(topicName);
+        MessageConsumer consumer = session.createDurableSubscriber(topicDestination,consumerName);
         consumer.setMessageListener(new Listener());
-
     }
 }
