@@ -1,3 +1,5 @@
+package com.company;
+
 import javax.jms.*;
 
 public class Listener implements MessageListener {
@@ -10,6 +12,7 @@ public class Listener implements MessageListener {
             if(news!=null){
                 System.out.println("---------NEWS----------");
                 System.out.println("News domain: "+news.getDomain());
+                System.out.println("News title: "+news.getTitle());
                 System.out.println("News author: "+news.getAuthor());
                 System.out.println("News text: "+news.getText());
                 System.out.println("Publication date: "+news.getPublicationDate());
