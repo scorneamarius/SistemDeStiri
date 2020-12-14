@@ -27,7 +27,6 @@ public class Consumer implements Runnable {
     }
 
     private void closeConnection(){
-        System.out.println("*********************************************");
         try {
             Thread.currentThread().sleep(30);
             this.session.close();
@@ -38,7 +37,6 @@ public class Consumer implements Runnable {
         catch (JMSException e) {
             e.printStackTrace();
         }
-        System.out.println("---------------------------------");
     }
 
     public void getTopics() throws JMSException {
@@ -55,7 +53,7 @@ public class Consumer implements Runnable {
             Topic topicDestination = session.createTopic(this.topicName);
             MessageConsumer consumer = session.createDurableSubscriber(topicDestination,this.name);
             consumer.setMessageListener(new Listener(name));
-//            closeConnection();
+            closeConnection();
         } catch (JMSException e) {
             e.printStackTrace();
         }
