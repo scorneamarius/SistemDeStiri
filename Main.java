@@ -37,5 +37,12 @@ public class Main {
             Runnable currentTask = taskList.get(i);
             service.schedule(currentTask,i,TimeUnit.SECONDS);
         }
+
+        service.shutdown();
+        try {
+            service.awaitTermination(10,TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

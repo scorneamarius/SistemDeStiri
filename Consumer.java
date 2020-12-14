@@ -13,7 +13,7 @@ public class Consumer implements Runnable {
     private ActiveMQConnection connection;
     private Set<ActiveMQTopic> allTopics ;
     private ObservableMap<String, String> observableMap;
-
+    private Session session;
     public Consumer(String name, String topicName, ObservableMap<String, String> observableMap) throws URISyntaxException, JMSException {
         this.name = name;
         this.topicName = topicName;
@@ -24,6 +24,21 @@ public class Consumer implements Runnable {
         this.observableMap = observableMap;
         observableMap.put(this.name, this.topicName);
 
+    }
+
+    private void closeConnection(){
+        System.out.println("*********************************************");
+        try {
+            Thread.currentThread().sleep(30);
+            this.session.close();
+            this.connection.close();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        catch (JMSException e) {
+            e.printStackTrace();
+        }
+        System.out.println("---------------------------------");
     }
 
     public void getTopics() throws JMSException {
@@ -40,6 +55,7 @@ public class Consumer implements Runnable {
             Topic topicDestination = session.createTopic(this.topicName);
             MessageConsumer consumer = session.createDurableSubscriber(topicDestination,this.name);
             consumer.setMessageListener(new Listener(name));
+//            closeConnection();
         } catch (JMSException e) {
             e.printStackTrace();
         }
