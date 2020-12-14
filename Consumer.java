@@ -39,7 +39,7 @@ public class Consumer implements Runnable {
             Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);
             Topic topicDestination = session.createTopic(this.topicName);
             MessageConsumer consumer = session.createDurableSubscriber(topicDestination,this.name);
-            consumer.setMessageListener(new Listener());
+            consumer.setMessageListener(new Listener(name));
         } catch (JMSException e) {
             e.printStackTrace();
         }

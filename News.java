@@ -12,13 +12,15 @@ public class News implements Serializable {
         return author;
     }
 
-    public News(String domain, String author, String text){
+    public News(String domain, String text){
         this.domain = domain;
-        this.author = author;
         this.publicationDate = new Date().toString();
         this.text = text;
     }
 
+    public void setAuthor(String author){
+        this.author=author;
+    }
     public String getText() {
         return text;
     }

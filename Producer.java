@@ -18,6 +18,7 @@ public class Producer implements Runnable {
         this.name = name;
         this.topicName = news.getDomain();
         this.news = news;
+        news.setAuthor(this.name);
         connection = ActiveMQConnection.makeConnection(url);
         connection.start();
         allTopics = connection.getDestinationSource().getTopics();
