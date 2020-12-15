@@ -1,3 +1,4 @@
+import javafx.collections.ObservableMap;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQTopic;
 import javax.jms.*;
@@ -12,15 +13,28 @@ public class Producer implements Runnable {
     private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
     private ActiveMQConnection connection;
     private Set<ActiveMQTopic> allTopics;
+    private ObservableMap<String, String> observableMap;
 
 
-    public Producer(String name, News news) throws URISyntaxException, JMSException {
+    public Producer(String name, News news,  ObservableMap<String, String> observableMap) throws URISyntaxException, JMSException {
         this.name = name;
         this.topicName = news.getDomain();
         this.news = news;
+        news.setAuthor(this.name);
         connection = ActiveMQConnection.makeConnection(url);
         connection.start();
+        this.observableMap = observableMap;
         allTopics = connection.getDestinationSource().getTopics();
+    }
+
+    public int getNumberOfSubscribers(String topicName){
+        int nr=0;
+        for (ObservableMap.Entry<String,String> entry : observableMap.entrySet()){
+            if(entry.getValue().equals(topicName)){
+                nr++;
+            }
+        }
+        return nr;
     }
 
     public void run() {

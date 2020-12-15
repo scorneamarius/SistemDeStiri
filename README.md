@@ -16,4 +16,5 @@ si alte atribute (data, sursa etc.).
 Documentatie : https://docs.oracle.com/javaee/5/tutorial/doc/bncdq.html
 Topic guide : https://examples.javacodegeeks.com/enterprise-java/jms/jms-topic-example/
 Download latest version ActiveMQ : https://activemq.apache.org/components/classic/download/
+Download javafx library : https://gluonhq.com/products/javafx/
 Integrare cu Intellij : File -> Project Structure -> Modules -> Dependencies -> + button -> JARs or directories -> activemq-all-5.16.0.jar

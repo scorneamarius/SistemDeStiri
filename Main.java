@@ -1,42 +1,55 @@
 import javax.jms.JMSException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.concurrent.*;
 import javafx.collections.ObservableMap;
-import javafx.collections.MapChangeListener;
 import javafx.collections.FXCollections;
 
 public class Main {
 
     public static void main(String[] args) throws URISyntaxException, JMSException {
-        System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
 
+        System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
+        List<Runnable> taskList = new ArrayList<Runnable>();
         Map<String,String> map = new HashMap<String,String>();
         ObservableMap<String,String> observableMap = FXCollections.observableMap(map);
-        observableMap.addListener(new MapChangeListener() {
-            @Override
-            public void onChanged(MapChangeListener.Change change) {
-                System.out.println("Detected a change! ");
-            }
-        });
+        observableMap.addListener(new myMapChangeListener());
 
-        Consumer c1 = new Consumer("Alfred","Topic1",observableMap );
-        Consumer c2 = new Consumer("Alfred111","Topic2", observableMap);
+        String topicName1="Topic1";
+        String topicName2="Topic2";
 
-        Thread t2 = new Thread(c1);
-        Thread t4 = new Thread(c2);
-        Thread t1 = new Thread(new Producer("Nume1", new News("Topic1","Autor1","Text")));
-        Thread t3 = new Thread(new Producer("Nume2", new News("Topic2","Autor2","Text2")));
 
-        t1.start();
-        t3.start();
+        Consumer c1 = new Consumer("Subscriber1",topicName1, observableMap);
+        Consumer c2 = new Consumer("Subscriber2",topicName2, observableMap);
+        Consumer c3 = new Consumer("Subscriber3",topicName1, observableMap);
+        Producer p1 = new Producer("Producer1",new News(topicName1,"Text from Producer1"), observableMap);
+        Producer p2 = new Producer("Producer2",new News(topicName2,"Text from Producer2"), observableMap);
+
+
+        taskList.add(c1);
+        taskList.add(c2);
+        taskList.add(c3);
+        taskList.add(p1);
+        taskList.add(p2);
+
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(10);
+
+        for(int i=0;i<4;i++){
+            Runnable currentTask = taskList.get(i);
+            service.schedule(currentTask,i,TimeUnit.SECONDS);
+        }
+
+        System.out.println("Number of subscribers from topic " + topicName1 + ": " +p1.getNumberOfSubscribers(topicName1));
+        System.out.println("Number of subscribers from topic " + topicName2 + ": " +p2.getNumberOfSubscribers(topicName2));
+
+        service.shutdown();
         try {
-            Thread.sleep(15);
+            service.awaitTermination(10,TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        t2.start();
-        t4.start();
-
     }
 }
