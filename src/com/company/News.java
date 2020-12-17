@@ -9,17 +9,14 @@ public class News implements Serializable {
     private String publicationDate;
     private String domain;
     private String text;
-    public EventType type;
+    public String type;
 
-    public enum EventType {
-        ADD,DELETE,MODIFY
-    }
 
     public String getAuthor() {
         return author;
     }
 
-    public News(String domain, String text,EventType type){
+    public News(String domain, String text,String type){
         this.domain = domain;
         this.publicationDate = new Date().toString();
         this.text = text;
@@ -44,5 +41,9 @@ public class News implements Serializable {
 
     private void setText(String text){
         this.text = text;
+    }
+
+    public String getType(){
+        return this.type;
     }
 }

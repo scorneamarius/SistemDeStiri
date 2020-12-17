@@ -61,7 +61,6 @@ public class Consumer implements Runnable {
             Topic topicDestination = session.createTopic(this.topicName);
             MessageConsumer consumer = session.createDurableSubscriber(topicDestination,this.name);
             consumer.setMessageListener(new Listener(name));
-            System.out.println("consumer");
             closeConnection();
         } catch (JMSException e) {
             e.printStackTrace();

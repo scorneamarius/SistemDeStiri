@@ -12,7 +12,7 @@ public class Listener implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        System.out.println("hello");
+
 
         ObjectMessage objectMessage =(ObjectMessage)message;
         try {
@@ -23,7 +23,7 @@ public class Listener implements MessageListener {
                 System.out.println("News author: "+news.getAuthor());
                 System.out.println("News text: "+news.getText());
                 System.out.println("Publication date: "+news.getPublicationDate());
-                System.out.println("\n");
+               // System.out.println("\n");
             }
         } catch (JMSException e) {
             e.printStackTrace();
