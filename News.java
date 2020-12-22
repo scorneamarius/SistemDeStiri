@@ -1,26 +1,32 @@
+package com.company;
+
 import java.io.Serializable;
 import java.util.Date;
 
 public class News implements Serializable {
+
     private String author;
     private String publicationDate;
     private String domain;
     private String text;
+    public String type;
 
 
     public String getAuthor() {
         return author;
     }
 
-    public News(String domain, String text){
+    public News(String domain, String text,String type){
         this.domain = domain;
         this.publicationDate = new Date().toString();
         this.text = text;
+        this.type = type;
     }
 
     public void setAuthor(String author){
         this.author=author;
     }
+
     public String getText() {
         return text;
     }
@@ -35,5 +41,9 @@ public class News implements Serializable {
 
     private void setText(String text){
         this.text = text;
+    }
+
+    public String getType(){
+        return this.type;
     }
 }
