@@ -14,8 +14,8 @@ public class TestClass {
         News news2 = new News("fotbal","FCSB e pe primul loc in clasament","publisher2");
 
 
-        Runnable publisher1 = new Publisher(news1,news1.getDomain(),"rxTopicPublisher1");
-        Runnable publisher2 = new Publisher(news2,news2.getDomain(),"rxTopicPublisher2");
+        Runnable publisher1 = new Producer(news1,news1.getDomain(),"rxTopicPublisher1");
+        Runnable publisher2 = new Producer(news2,news2.getDomain(),"rxTopicPublisher2");
 
         Runnable reader1 = new Consumer("vreme","rxTopicPublisher1");
         Runnable reader2 = new Consumer("fotbal","rxTopicPublisher2");
