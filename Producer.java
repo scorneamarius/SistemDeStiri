@@ -1,27 +1,36 @@
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQTopic;
 import javax.jms.*;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 public class Producer implements Runnable {
 
     private String topicName;
+    private String topicAlert;
     private String name;
     private News news;
     private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
     private ActiveMQConnection connection;
     private Set<ActiveMQTopic> allTopics;
+    private Session session;
+    private Map<News,Integer> map;
+    private ObservableMap<News,Integer> observableMap;
 
-
-    public Producer(String name, News news) throws URISyntaxException, JMSException {
-        this.name = name;
-        this.topicName = news.getDomain();
+    public Producer(News news, String topicName, String topicAlert) throws URISyntaxException, JMSException {
         this.news = news;
-        news.setAuthor(this.name);
+        this.topicName = topicName;
+        this.topicAlert = topicAlert;
+        map = new HashMap<News, Integer>();
+        observableMap = FXCollections.observableMap(map);
+        observableMap.addListener(new myMapChangeListener());
+        observableMap.put(news, 0);
         connection = ActiveMQConnection.makeConnection(url);
         connection.start();
-        allTopics = connection.getDestinationSource().getTopics();
     }
 
     public void run() {
@@ -29,15 +38,21 @@ public class Producer implements Runnable {
         try {
             System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
 
-            Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);
+
             Destination destination = session.createTopic(this.topicName);
             MessageProducer producer = session.createProducer(destination);
+
+            Topic destination1 = session.createTopic(this.topicAlert);
+            MessageConsumer listenerTopicAlert = session.createConsumer(destination1);
 
             ObjectMessage message = session.createObjectMessage();
             message.setObject(this.news);
             producer.send(message);
-            session.close();
-            connection.close();
+
+            listenerTopicAlert.setMessageListener(new Listener(observableMap));
+
+
         } catch (JMSException e) {
             e.printStackTrace();
         }

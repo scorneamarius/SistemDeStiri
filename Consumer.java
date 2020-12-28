@@ -1,9 +1,11 @@
-import javafx.collections.ObservableMap;
+package com.company;
+
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.command.ActiveMQTopic;
 import javax.jms.*;
 import java.net.URISyntaxException;
 import java.util.Set;
+
 
 public class Consumer implements Runnable {
 
@@ -12,29 +14,27 @@ public class Consumer implements Runnable {
     private String url = ActiveMQConnection.DEFAULT_BROKER_URL;
     private ActiveMQConnection connection;
     private Set<ActiveMQTopic> allTopics ;
-    private ObservableMap<String, String> observableMap;
     private Session session;
-    public Consumer(String name, String topicName, ObservableMap<String, String> observableMap) throws URISyntaxException, JMSException {
+    private String confirmTopic;
+
+
+    public Consumer(String name, String topicName, String confirmTopic) throws URISyntaxException, JMSException {
         this.name = name;
         this.topicName = topicName;
+        this.confirmTopic=confirmTopic;
         this.connection = ActiveMQConnection.makeConnection(url);
         this.connection.setClientID(this.name);
         connection.start();
         allTopics = connection.getDestinationSource().getTopics();
-        this.observableMap = observableMap;
-        observableMap.put(this.name, this.topicName);
-
     }
+
 
     private void closeConnection(){
         try {
             Thread.currentThread().sleep(30);
             this.session.close();
             this.connection.close();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        catch (JMSException e) {
+        } catch (InterruptedException | JMSException e) {
             e.printStackTrace();
         }
     }
@@ -45,14 +45,25 @@ public class Consumer implements Runnable {
             System.out.println(topic.getTopicName());
         }
     }
+    public String getConfirmTopic(){
+        return this.confirmTopic;
+    }
+
     @Override
     public void run() {
         try {
             System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES","*");
-            Session session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false,Session.AUTO_ACKNOWLEDGE);
             Topic topicDestination = session.createTopic(this.topicName);
             MessageConsumer consumer = session.createDurableSubscriber(topicDestination,this.name);
             consumer.setMessageListener(new Listener(name));
+
+            Destination destination = session.createTopic(this.getConfirmTopic());
+            MessageProducer producer = session.createProducer(destination);
+            ObjectMessage message = session.createObjectMessage();
+            message.setObject(this.getConfirmTopic());
+            producer.send(message);
+
             closeConnection();
         } catch (JMSException e) {
             e.printStackTrace();
